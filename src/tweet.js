@@ -1,3 +1,5 @@
+const { ObjectId } = require('mongodb')
+
 exports.isValid = (thing) =>
   typeof thing === 'object' &&
   thing !== null &&
@@ -7,22 +9,21 @@ exports.isValid = (thing) =>
   typeof thing.body === 'string' &&
   thing.body.length <= 280
 
-const tweets = (db) => db.tweets
+const tweets = (db) => db.collection('tweets')
 
-exports.all = (db) => tweets(db)
+exports.all = async (db) =>
+  await tweets(db).find().toArray()
 
-exports.findById = (db, id) =>
-  tweets(db).filter((tweet) => tweet.id == id)[0]
+exports.findById = async (db, id) =>
+  await tweets(db).findOne(ObjectId(id))
 
-exports.findByHandle = (db, handle) =>
-  tweets(db).filter((tweet) => tweet.handle == handle)
+exports.findByHandle = async (db, handle) =>
+  await tweets(db).find({handle: handle}).toArray()
 
-let nextId = 1
-const addId = (tweet) => Object.assign({}, tweet, {id: '' + nextId++})
 const addTimestamp = (tweet) => Object.assign({}, tweet, {timestamp: Date.now()})
 
-exports.insert = (db, tweet) => {
-  const newTweet = addId(addTimestamp(tweet))
-  tweets(db).push(newTweet)
+exports.insert = async (db, tweet) => {
+  let newTweet = addTimestamp(tweet)
+  await tweets(db).insertOne(newTweet)
   return newTweet
 }

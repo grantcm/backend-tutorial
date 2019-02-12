@@ -6,12 +6,13 @@ exports.isValid = (thing) =>
   typeof thing.handle === 'string' &&
   typeof thing.tweetId === 'string'
 
-const likes = (db) => db.likes
+const likes = (db) => db.collection('likes')
 
-exports.all = (db) => likes(db)
+exports.all = async (db) =>
+  await likes(db).find({}).toArray()
 
-exports.findByTweetId = (db, id) =>
-  likes(db).filter((like) => like.tweetId == id)
+exports.findByTweetId = async (db, id) =>
+  await likes(db).find({tweetId: id}).toArray()
 
-exports.insert = (db, like) =>
-  likes(db).push(like)
+exports.insert = async (db, like) =>
+  await likes(db).insertOne(like)

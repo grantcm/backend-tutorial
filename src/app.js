@@ -7,17 +7,17 @@ exports.makeApp = (db) => {
   var app = express()
   app.use(bodyParser.json())
 
-  app.post('/tweet', (req, res) => {
+  app.post('/tweet', async (req, res) => {
     if (!req.is('json') || !tweets.isValid(req.body)) {
       return res.status(400).end()
     } else {
-      return res.status(200).json(tweets.insert(db, req.body))
+      return res.status(200).json(await tweets.insert(db, req.body))
     }
   })
 
-  app.get('/t/:handle', (req, res) => {
+  app.get('/t/:handle', async (req, res) => {
     const handle = req.params.handle
-    const tweetsForUser = tweets.findByHandle(db, handle)
+    const tweetsForUser = await tweets.findByHandle(db, handle)
     if (tweetsForUser.length === 0) {
       return res.status(404).end()
     } else {
@@ -25,33 +25,33 @@ exports.makeApp = (db) => {
     }
   })
 
-  app.put('/like', (req, res) => {
+  app.put('/like', async (req, res) => {
     const body = req.body
     if (!req.is('json') || !likes.isValid(body)) {
       return res.status(400).end()
-    } else if (!(tweets.findById(db, body.tweetId))) {
+    } else if (!(await tweets.findById(db, body.tweetId))) {
       return res.status(404).end()
     } else {
-      likes.insert(db, body)
+      await likes.insert(db, body)
       return res.status(200).json(body)
     }
   })
 
-  app.get('/tweet/:id', (req, res) => {
+  app.get('/tweet/:id', async (req, res) => {
     const id = req.params.id
-    const tweet = tweets.findById(db, id)
+    const tweet = await tweets.findById(db, id)
     if (!tweet) {
       return res.status(404).end()
     } else {
-      const _likes = likes.findByTweetId(db, id)
+      const _likes = await likes.findByTweetId(db, id)
       const body = { tweet, likes: _likes }
       return res.status(200).json(body)
     }
   })
 
-  app.get('/everything', (req, res) => {
-    const allTweets = tweets.all(db)
-    const allLikes = likes.all(db)
+  app.get('/everything', async (req, res) => {
+    const allTweets = await tweets.all(db)
+    const allLikes = await likes.all(db)
     const body = { tweets: allTweets, likes: allLikes }
     return res.status(200).json(body)
   })
