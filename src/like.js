@@ -16,3 +16,6 @@ exports.findByTweetId = async (db, id) =>
 
 exports.insert = async (db, like) =>
   await likes(db).insertOne(like)
+
+exports.deleteAll = async (db) =>
+  await likes(db).deleteMany({})

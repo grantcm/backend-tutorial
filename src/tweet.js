@@ -27,3 +27,6 @@ exports.insert = async (db, tweet) => {
   await tweets(db).insertOne(newTweet)
   return newTweet
 }
+
+exports.deleteAll = async (db) =>
+  await tweets(db).deleteMany({})

@@ -56,5 +56,11 @@ exports.makeApp = (db) => {
     return res.status(200).json(body)
   })
 
+  app.put('/reset', async (req, res) => {
+    await tweets.deleteAll(db)
+    await likes.deleteAll(db)
+    return res.status(204).end()
+  })
+
   return app
 }
